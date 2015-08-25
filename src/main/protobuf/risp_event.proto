@@ -1,0 +1,10 @@
+package org.koiroha.flume.risp;
+
+message FlumeEvent {
+  message HeaderField {
+    required string name = 1;
+    required string value = 2;
+  }
+  repeated HeaderField headers = 1;
+  required bytes body = 2;
+}
