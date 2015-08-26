@@ -25,8 +25,8 @@ class ServerSink extends AbstractSink with Configurable {
   override def configure(context: Context): Unit = {
     val batchSize = context.getInteger("batchSize", 1000)
     val address = new InetSocketAddress(
-      context.getString("server.http.address", "0.0.0.0"),
-      context.getInteger("server.http.port", 8011))
+      context.getString("server.risp.address", "0.0.0.0"),
+      context.getInteger("server.risp.port", 8011))
     config.foreach{ _.dispatcher.shutdown() }
     config = Some(Config(batchSize, address))
   }
