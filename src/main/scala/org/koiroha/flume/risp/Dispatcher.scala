@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 koiroha.org.
+ * All sources and related resources are available under Apache License 2.0.
+ * http://www.apache.org/licenses/LICENSE-2.0.html
+*/
 package org.koiroha.flume.risp
 
 import java.net.SocketAddress
@@ -13,10 +18,17 @@ import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.concurrent.{Promise, Future}
 
-class Dispatcher(val address:SocketAddress){
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// Dispatcher
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/**
+ * @author Takami Torao
+ */
+private class Dispatcher(val address:SocketAddress, val path:String){
+
   private[this] val websockets = new AtomicReference(Seq[WebSocket]())
 
-  val app = new WebSocketApplication {
+  private[this] val app = new WebSocketApplication {
     @tailrec
     override def onConnect(ws:WebSocket):Unit = {
       val current = websockets.get()
@@ -37,11 +49,11 @@ class Dispatcher(val address:SocketAddress){
     }
   }
 
-  val server = {
+  private[this] val server = {
     val s = HttpServer.createSimpleServer()
     val addon = new WebSocketAddOn()
     s.getListeners.foreach{ _.registerAddOn(addon) }
-    WebSocketEngine.getEngine.register("", "/api/1.0/logs", app)
+    WebSocketEngine.getEngine.register("", path, app)
     s
   }
 

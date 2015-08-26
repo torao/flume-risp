@@ -1,10 +1,13 @@
+/*
+ * Copyright (c) 2015 koiroha.org.
+ * All sources and related resources are available under Apache License 2.0.
+ * http://www.apache.org/licenses/LICENSE-2.0.html
+*/
 package org.koiroha.flume.risp
 
 import java.net.{InetSocketAddress, SocketAddress}
-import java.util
 
 import org.apache.flume.Context
-import org.apache.flume.Event
 import org.apache.flume.Sink.Status
 import org.apache.flume.conf.Configurable
 import org.apache.flume.sink.AbstractSink
@@ -14,7 +17,7 @@ import scala.annotation.tailrec
 class ServerSink extends AbstractSink with Configurable {
 
   private[this] case class Config(batchSize:Int, bindAddress:SocketAddress){
-    val dispatcher = new Dispatcher(bindAddress)
+    val dispatcher = new Dispatcher(bindAddress, "/api/1.0/logs")
   }
 
   private[this] var config:Option[Config] = None
