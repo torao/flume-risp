@@ -1,0 +1,16 @@
+<html>
+<head>
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript">
+    var c = new WebSocket("ws://localhost:8021/echo");
+  </script>
+</head>
+<body>
+<form action="#">
+  <inpu type="text" id="text" />
+  <button id="button">SEND</button>
+  -&gt;
+  <span id="response"></span>
+  </form>
+</body>
+</html>
