@@ -17,7 +17,7 @@ import scala.annotation.tailrec
 class ServerSink extends AbstractSink with Configurable {
 
   private[this] case class Config(batchSize:Int, bindAddress:SocketAddress){
-    val dispatcher = new Dispatcher(bindAddress, "/api/1.0/logs")
+    val dispatcher = new Sender(bindAddress, "/api/1.0/logs")
   }
 
   private[this] var config:Option[Config] = None

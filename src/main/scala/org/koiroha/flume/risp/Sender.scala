@@ -5,41 +5,45 @@
 */
 package org.koiroha.flume.risp
 
-import java.net.SocketAddress
+import java.net.{InetSocketAddress, SocketAddress}
 
 import com.google.protobuf.ByteString
 import org.apache.flume.Event
 import org.glassfish.grizzly.CompletionHandler
 import org.glassfish.grizzly.http.server.HttpServer
 import org.glassfish.grizzly.websockets._
-import org.koiroha.flume.risp.Dispatcher.FlumeApp
+import org.koiroha.flume.risp.Sender.FlumeApp
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
 import scala.concurrent.{Future, Promise}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// Dispatcher
+// Sender
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
+ * @param docroot directory to send-back as static document. None if no document specified.
  * @author Takami Torao
  */
-private class Dispatcher(val address:SocketAddress, val path:String) {
-
-  import Dispatcher.logger
+private class Sender(bindAddress:SocketAddress, urlPath:String, docroot:Option[String] = None) {
 
   private[this] val app = new FlumeApp()
 
   private[this] val server = {
-    val s = HttpServer.createSimpleServer("", address)
+    val s = HttpServer.createSimpleServer(docroot.orNull, bindAddress)
     val addon = new WebSocketAddOn()
     s.getListeners.foreach{ _.registerAddOn(addon) }
-    WebSocketEngine.getEngine.register("", path, app)
+    WebSocketEngine.getEngine.register("", urlPath, app)
     s
   }
 
   def start():Unit = {
     server.start()
+    val hostPort = bindAddress match {
+      case i:InetSocketAddress => s"${i.getHostName}:${i.getPort}"
+      case i => i.toString
+    }
+    Sender.logger.debug(s"flume service on: ws://$hostPort$urlPath")
   }
 
   def shutdown():Future[Unit] = {
@@ -63,10 +67,10 @@ private class Dispatcher(val address:SocketAddress, val path:String) {
   }
 }
 
-object Dispatcher {
-  private[Dispatcher] val logger = LoggerFactory.getLogger(classOf[Dispatcher])
+private object Sender {
+  private[Sender] val logger = LoggerFactory.getLogger(classOf[Sender])
 
-  private[Dispatcher] class FlumeApp extends WebSocketApplication {
+  private[Sender] class FlumeApp extends WebSocketApplication {
     def send(msg:Array[Byte]):Unit = {
       getWebSockets.foreach{ _.send(msg) }
     }

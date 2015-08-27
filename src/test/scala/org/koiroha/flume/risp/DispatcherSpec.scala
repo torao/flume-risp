@@ -38,7 +38,7 @@ can send/receive signle event. $singleEventDispatch
 		val port = 8011
 		val path = "/api/1.0/logs"
 	  val addr = new InetSocketAddress(host, port)
-	  val dispatcher = new Dispatcher(addr, path)
+	  val dispatcher = new Sender(addr, path)
 	  dispatcher.start()
 
     // create flume event

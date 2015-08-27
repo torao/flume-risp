@@ -26,14 +26,15 @@ import java.util.stream.Collectors;
 // Receiver
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
+ * Low-level protocol implementation to receive flume event.
+ *
  * @author Takami Torao
  */
 class Receiver implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(Receiver.class);
 
     /**
-     * The URL to connect from this source. It is expected to serve by {@link ServerSink
-     * flume-risp sink}.
+     * URL to the server that serves flume {@link ServerSink}.
      */
     private final URI uri;
 
@@ -73,11 +74,15 @@ class Receiver implements Closeable {
     };
 
     /**
+     * URI must have {@code ws} or {@code wss} scheme.
      *
-     * @param uri
+     * @param uri URI to risp {@link ServerSink server sink}
      * @param connectTimeout TCP connect timeout by milliseconds
      */
     public Receiver(URI uri, Consumer<Event> receiver, int connectTimeout){
+        if(! "ws".equalsIgnoreCase(uri.getScheme()) || ! "wss".equalsIgnoreCase(uri.getScheme())){
+            throw new IllegalArgumentException("risp url must have scheme 'ws' or 'wss'");
+        }
         this.uri = uri;
         this.receiver = receiver;
 
